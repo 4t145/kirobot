@@ -13,7 +13,7 @@
   "scripts": {
     "test_magnet": "node",
     "start": "node index.js",
-    "pm2_start" : "pm2 start --name kirobot"
+    "pm2_start" : "pm2 start index.js --name kirobot"
   },
   "author": "4t145",
   "description": "a telegram bot created by 4t145"
