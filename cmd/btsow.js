@@ -1,45 +1,45 @@
-const cheerio = require('cheerio');
-const request = require('request');
-const urlencode = require('urlencode');
-const Agent = require('socks5-https-client/lib/Agent');
+var bot = require('../bot/bot');
+const base_url = require('../env/mod').btsow_base_url;
 
-const s5_config = {
-    agentClass: Agent,
-    agentOptions: {
-        socksHost: '127.0.0.1',
-        socksPort: 10808
-    },
+const Agent = require('socks5-https-client/lib/Agent');
+const cheerio = require('cheerio');
+const urlencode = require('urlencode');
+const request = require('request');
+const request_config = {
+    // agentClass: Agent,
+    // agentOptions: {
+    //     socksHost: '127.0.0.1',
+    //     socksPort: 10808
+    // },
     headers: {
         'User-Agent': 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0',
         'Connetion': 'keep-alive',
-        'Referer': 'https://btsow.casa/tags',
-
+        'Referer': base_url+'tags',
     }
 }
 const magnet_head = 'magnet:?xt=urn:btih:';
 const btsow_url = (key) => {
     const url = 
-        'https://btsow.casa/search/'
+        base_url
+        + 'search/'
         + urlencode(key);
     return url;
 }
 
-
-export const get_mag_links = (key_words) => {
+module.exports = (msg, match) => {
+    const chatId = msg.chat.id;
+    const key_words = match[1].toString();
     let mag_link_list = new Array();
-    request(btsow_url(key_words), s5_config, (error, response, body) => {
+    request(btsow_url(key_words), request_config, (error, response, body) => {
         if(error) {
             console.log(error);
             return;
         } 
         if (response.statusCode == 200) {
             const page = cheerio.load(body);
-            // console.log(page.html());
             let data_list = page('.data-list');
-            // console.log(data_list.html())
             const data_sellector = cheerio.load(data_list.html());
             data_sellector('.hidden-xs').remove();
-            // console.log(data_sellector.html());
             const rows = data_sellector('.row').toArray();
             const item_num = rows.length;
             console.log(item_num);
@@ -66,10 +66,20 @@ export const get_mag_links = (key_words) => {
             }
         } else {
             console.log(response.statusCode);
-            // console.log(response);
             console.log(body);
         }
+        if(mag_link_list.length == 0) {
+            bot.sendMessage(chatId, '一个也找不到啦！');
+        } else {
+            mag_link_list.forEach( item => {
+                bot.sendMessage(
+                    chatId, 
+                    '标题：' + item['title'] + '\n' + 
+                    '磁力链接：' + item['magnet'] + '\n' +
+                    '信息：' + item['size-date']
+                );
+            });
+        }
     });
+    
 }
-
-get_mag_links('让子弹飞');
