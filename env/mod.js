@@ -7,7 +7,7 @@ const bangou_prefix = JSON.parse(avbangou_prefix_buf.toString());
 
 module.exports = {  
     saucenao_api_key: '2c44a50ebe753c0f2f17f24f3ee3e4caa3a05cd7',
-    btsow_base_url: 'https://btsow.casa/',
+    btsow_base_url: 'https://btsow.website/',
     kaoyan_dict: kaoyan_dict,
     bangou_prefix: bangou_prefix,
 }
